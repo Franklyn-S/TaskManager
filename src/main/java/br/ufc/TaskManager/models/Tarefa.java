@@ -17,12 +17,12 @@ public class Tarefa {
     private Long id;
 
     @Column(name = "tar_titulo", length = 50, nullable = false)
-    @NotNull(message= "O título é obrigatório!")
-    @Length(max = 50, min = 3, message="O título deve conter entre 3 e 50 caracteres")
+    @NotNull(message = "O título é obrigatório!")
+    @Length(max = 50, min = 3, message = "O título deve conter entre 3 e 50 caracteres")
     private String titulo;
 
     @Column(name = "tar_descricao", length = 100, nullable = true)
-    @Length(max = 100, message="A descrição deve conter no máximo 100 caracteres")
+    @Length(max = 100, message = "A descrição deve conter no máximo 100 caracteres")
     private String descricao;
 
     @Column(name = "tar_data_expiracao", nullable = false)
@@ -31,6 +31,18 @@ public class Tarefa {
 
     @Column(name = "tar_concluida", nullable = false)
     private Boolean concluida = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usr_id")
+    private Usuario usuario;
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 
     public Long getId() {
         return id;

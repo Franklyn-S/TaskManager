@@ -21,4 +21,10 @@ CREATE TABLE usr_usuarios
 INSERT INTO tar_tarefas(tar_titulo, tar_descricao, tar_data_expiracao)
 VALUES('Aprender java spring', 'Ver os vídeos da semana do java spring da treina web', NOW());
 
+
 SELECT * FROM tar_tarefas;
+
+ALTER TABLE tar_tarefas ADD COLUMN usr_id INT NOT NULL;
+
+ALTER TABLE tar_tarefas ADD CONSTRAINT fk_tar_usr FOREIGN KEY (usr_id)
+REFERENCES usr_usuarios(usr_id);

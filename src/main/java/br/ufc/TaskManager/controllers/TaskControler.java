@@ -1,7 +1,9 @@
 package br.ufc.TaskManager.controllers;
 
 import br.ufc.TaskManager.models.Tarefa;
+import br.ufc.TaskManager.models.Usuario;
 import br.ufc.TaskManager.repository.TaskRepository;
+import br.ufc.TaskManager.servicos.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Date;
 
@@ -21,11 +24,15 @@ public class TaskControler {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/listar")
-    public ModelAndView listar() {
+    public ModelAndView listar(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("tarefas/listar");
-        mv.addObject("tarefas", taskRepository.findAll());
+        String emailUsuario = request.getUserPrincipal().getName();
+        mv.addObject("tarefas", taskRepository.carregarTarefasUsuarios(emailUsuario));
         return mv;
     }
 
@@ -40,7 +47,7 @@ public class TaskControler {
 
 
     @PostMapping("/inserir")
-    public ModelAndView inserir(@Valid Tarefa tarefa, BindingResult result){
+    public ModelAndView inserir(@Valid Tarefa tarefa, BindingResult result, HttpServletRequest request){
         ModelAndView mv = new ModelAndView();
         if(tarefa.getDataExpiracao() == null){
             result.rejectValue("dataExpiracao","tarefa.DataExpiracaoInvalida",
@@ -56,8 +63,11 @@ public class TaskControler {
             mv.setViewName("tarefas/inserir");
             mv.addObject(tarefa);
         }else{
-            mv.setViewName("redirect:/tarefas/listar");
+            String emailUsuario = request.getUserPrincipal().getName();
+            Usuario usuarioLogado = userService.encontrarPorEmail(emailUsuario);
+            tarefa.setUsuario(usuarioLogado);
             taskRepository.save(tarefa);
+            mv.setViewName("redirect:/tarefas/listar");
         }
         return mv;
     }
